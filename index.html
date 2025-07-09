@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pie Order Form</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
+    label { display: block; margin-top: 1rem; font-weight: bold; }
+    select, input[type="text"], input[type="number"] {
+      width: 100%; padding: 0.5rem; font-size: 1rem;
+    }
+    button { margin-top: 2rem; padding: 0.75rem; font-size: 1rem; background: #28a745; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <h1>Pie Order Form</h1>
+
+  <form id="pieForm">
+    <label for="name">Customer Name</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="pieType">Pie Type</label>
+    <select id="pieType" name="pieType" required>
+      <option value="">-- Select --</option>
+      <option value="Regular">Regular Pie (9")</option>
+      <option value="Cutie">Cutie Pie (4")</option>
+      <option value="Itty">Itty Bitty (1")</option>
+    </select>
+
+    <label for="pieName">Pie Name</label>
+    <select id="pieName" name="pieName" required>
+      <option value="">-- Select a Pie Type First --</option>
+    </select>
+
+    <div id="bakeOptionWrapper" style="display:none;">
+      <label for="bakeOption">Baked or Frozen?</label>
+      <select id="bakeOption" name="bakeOption">
+        <option value="Baked">Baked</option>
+        <option value="Frozen">Frozen ("Take-and-Bake")</option>
+      </select>
+    </div>
+
+    <label for="quantity">Quantity</label>
+    <input type="number" id="quantity" name="quantity" min="1" value="1">
+
+    <p><strong>Price Each:</strong> $<span id="priceEach">0.00</span></p>
+    <p><strong>Total:</strong> $<span id="totalPrice">0.00</span></p>
+
+    <label for="paid">Paid?</label>
+    <select id="paid" name="paid">
+      <option value="No">No</option>
+      <option value="Yes">Yes</option>
+    </select>
+
+    <button type="submit">Submit Order</button>
+  </form>
+
+  <script>
+    const pieData = {
+      Regular: {
+        "Apple Crumb": 25,
+        "Cherry": 25,
+        "Blueberry": 25,
+        "Texas": 25,
+        "Peach": 25,
+        "Green Chili Chicken Pot Pie": 30,
+        "Chicken Pot Pie": 30,
+        "Breakfast Pie": 30,
+        "Key Lime": 25
+      },
+      Cutie: {
+        "Apple Crumb": 5,
+        "Cherry": 5,
+        "Blueberry": 5,
+        "Peach": 5,
+        "Green Chili Chicken Pot Pie": 5,
+        "Chicken Pot Pie": 5,
+        "Breakfast Pie": 5,
+        "Key Lime": 5
+      },
+      Itty: {
+        "(12) Coconut Cream": 20,
+        "(24) Coconut Cream": 40,
+        "(36) Coconut Cream": 60,
+        "(48) Coconut Cream": 80,
+        "(60) Coconut Cream": 100,
+        "Combination": 20
+      }
+    };
+
+    const piesWithBakeOption = ["Apple Crumb", "Cherry", "Blueberry", "Peach", "Texas", "Green Chili Chicken Pot Pie", "Chicken Pot Pie", "Breakfast Pie"];
+
+    const pieType = document.getElementById("pieType");
+    const pieName = document.getElementById("pieName");
+    const bakeOptionWrapper = document.getElementById("bakeOptionWrapper");
+    const priceEach = document.getElementById("priceEach");
+    const totalPrice = document.getElementById("totalPrice");
+    const quantity = document.getElementById("quantity");
+
+    pieType.addEventListener("change", () => {
+      const type = pieType.value;
+      pieName.innerHTML = `<option value="">-- Select a Pie --</option>`;
+      if (pieData[type]) {
+        Object.keys(pieData[type]).forEach(name => {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          pieName.appendChild(option);
+        });
+      }
+      updatePrices();
+    });
+
+    pieName.addEventListener("change", () => {
+      const name = pieName.value;
+      bakeOptionWrapper.style.display = piesWithBakeOption.includes(name) ? "block" : "none";
+      updatePrices();
+    });
+
+    quantity.addEventListener("input", updatePrices);
+
+    function updatePrices() {
+      const type = pieType.value;
+      const name = pieName.value;
+      const qty = parseInt(quantity.value || 1);
+      const price = pieData[type]?.[name] || 0;
+      priceEach.textContent = price.toFixed(2);
+      totalPrice.textContent = (price * qty).toFixed(2);
+    }
+
+    document.getElementById("pieForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      alert("This would send the order to Google Sheets via Apps Script.");
+    });
+  </script>
+
+</body>
+</html>
